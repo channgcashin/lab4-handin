@@ -1,0 +1,17 @@
+A.) Entry	Base Virtual Address	Points to (logically)
+	1023	0xffc00000				Page table for top 4MB of physical memory
+	1022	0xff800000				Page table for the 4MB chunk below 0xffc00000
+	....	...						...
+	   2	0x00800000				Page table for 0x00800000 - 0x00bfffff
+	   1	0x00400000				Page table for 0x00400000 - 0x007fffff
+	   0	0x00000000				[see next q]
+	
+	This updated table shows what rows in the page directory have been filled as well as the addresses each of these 4MB chunks point to.
+
+B.) Privilege levels more specifically rings controls whether user programs are allowed to use the page. Paging is essential for kernel protection as the pages containing the kernel's memory can be marked with PTE_U to be at 0, the highest privilege level. Segmentation is another mechanism to protect the kernel memory with privileges. In terms of hardware, the CR3 registor holds the physical address of the page directory and won't allow any user outside of ring 0 access to the kernel memory. 
+
+C.) The PageInfo struct is an 8 byte struct per each physical memory page, since it's a one-to-one mapping. The maximum size for UPAGES in 4MB, so we can have a total of 512K pages. Since each page is 4KB in size, this gives us a maximum size of 2GB of physical memory the OS can support.
+
+D.) We would need 4MB from PageInfo, 2MB from the page table, and an extra 4KB from the page directory. In total, we'd have 6MB+4KB of overhead.
+
+E.) We transition to running an EIP above KERNBASE after the jmp *%eax command is complete. This is possible because entry_pgdir maps pa [0, 4M) to va[0, 4M). This is necessary for running several commands in entry.S, as well as va[0, 4M) getting abandonded later.

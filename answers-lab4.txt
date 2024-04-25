@@ -1,0 +1,29 @@
+Exercise 2:
+The MPBOOTPHYS macro is crucial in kern/mpentry.S for addressing the difference between virtual and
+physical memory in the context of initializing secondary processors. Its absence could lead to
+incorrect memory accesses, potentially causing system instability or failures. In contrast,
+boot/boot.S operates in a simpler, pre-MMU context where such translation is not needed.
+
+Exercise 5:    
+While the BKL can prevent multiple CPUs from executing kernel code simultaneously, it does not
+address the complexities and necessities of stack management in a multi-CPU environment, especially
+under conditions like nested interrupts. Separate kernel stacks for each CPU are critical for
+maintaining the integrity and isolation of the execution context on each CPU. Here is a scenario
+scenario where a shared kernel stack could go wrong: While handling the first interrupt, a second
+interrupt or an exception might occur, requiring immediate attention. This second interrupt would
+also use the stack for its execution.
+
+Exercise 6:    
+1. lcr3() is typically used to load a new page directory base address into the CR3 control register,
+effectively switching the current address space (or context) used by the Memory Management Unit (MMU)
+for translating virtual addresses to physical addresses. The key reason why e can be dereferenced
+before and after the addressing switch is because kernel addresses are usually globally mapped across
+all address spaces in the system. This design allows the kernel to safely access its own data
+structures regardless of which user-space context is currently active.
+
+2. Each environment or process in a multitasking system has its own state, represented by the values
+in its registers, including the instruction pointer, stack pointer, and general-purpose registers.
+Preserving this state ensures that when the environment is resumed, it can continue executing from
+where it left off as if it had never been interrupted. This saving of state typically happens in
+several places in the kernel: the context switch routine, the interrupt and system call handling
+and the scheduler.
